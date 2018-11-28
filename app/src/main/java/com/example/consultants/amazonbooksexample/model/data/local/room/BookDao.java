@@ -8,15 +8,16 @@ import com.example.consultants.amazonbooksexample.model.Book;
 
 import java.util.List;
 
+import io.reactivex.Flowable;
 import io.reactivex.Observable;
 
 @Dao
 public interface BookDao {
 
-//    @Insert
-//    void saveBook(Book book);
+    @Insert
+    void saveBooks(List<Book> books);
 //
-//    @Query("Select * from Book")
-//    Observable<List<Book>> getBooks();
+    @Query("Select * from Book")
+    Flowable<List<Book>> getBooks();
 
 }

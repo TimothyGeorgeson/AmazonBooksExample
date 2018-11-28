@@ -2,6 +2,7 @@ package com.example.consultants.amazonbooksexample.model.data;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.example.consultants.amazonbooksexample.model.Book;
@@ -25,21 +26,52 @@ public class BookRepository {
     }
 
     public LiveData<List<Book>> getBooks() {
-        Log.d(TAG, "getBooks: ");
 
-        remoteDataSource.getBooks(new DataCallback() {
+        checkCache(new CheckCacheCallback() {
             @Override
-            public void onSuccess(List<Book> bookList) {
-                Log.d(TAG, "onSuccess: ");
-                listLiveData.setValue(bookList);
-            }
+            public void cacheDirtyResults(boolean isCacheDirty) {
+                if (isCacheDirty) {
+                    //load from remote source
+                    remoteDataSource.getBooks(new DataCallback() {
+                        @Override
+                        public void onSuccess(List<Book> bookList) {
+                            Log.d(TAG, "onSuccess: ");
+                            listLiveData.setValue(bookList);
+                            //save books here... commented out, I was getting the error
+                            //UNIQUE constraint failed: Book.title
+                            //There was only title and image in Book, so I don't know what to use as unique primary key
 
-            @Override
-            public void onFailure(String error) {
+                            //localDataSource.saveBooks(bookList);
+                        }
 
+                        @Override
+                        public void onFailure(String error) {
+
+                        }
+                    });
+
+                } else {
+                    //load from local source
+                    localDataSource.getBooks(new LocalDataSource.Callback() {
+                        @Override
+                        public void onBookData(List<Book> books) {
+                            listLiveData.setValue(books);
+                        }
+                    });
+                }
             }
         });
 
         return listLiveData;
     }
+
+    private void checkCache(@Nullable CheckCacheCallback cacheCallback) {
+        localDataSource.isCacheDirty(cacheCallback);
+    }
+
+    public interface CheckCacheCallback {
+        void cacheDirtyResults(boolean isCacheDirty);
+    }
+
+
 }
