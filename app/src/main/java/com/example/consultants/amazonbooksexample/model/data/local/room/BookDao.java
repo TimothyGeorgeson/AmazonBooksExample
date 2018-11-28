@@ -9,7 +9,6 @@ import com.example.consultants.amazonbooksexample.model.Book;
 import java.util.List;
 
 import io.reactivex.Flowable;
-import io.reactivex.Observable;
 
 @Dao
 public interface BookDao {

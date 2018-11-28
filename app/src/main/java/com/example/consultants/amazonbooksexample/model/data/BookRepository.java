@@ -35,7 +35,7 @@ public class BookRepository {
                     remoteDataSource.getBooks(new DataCallback() {
                         @Override
                         public void onSuccess(List<Book> bookList) {
-                            Log.d(TAG, "onSuccess: ");
+                            Log.d(TAG, "onSuccess: remote");
                             listLiveData.setValue(bookList);
 
                             //save books to local database
@@ -53,6 +53,7 @@ public class BookRepository {
                     localDataSource.getBooks(new LocalDataSource.Callback() {
                         @Override
                         public void onBookData(List<Book> books) {
+                            Log.d(TAG, "onSuccess: local");
                             listLiveData.setValue(books);
                         }
                     });

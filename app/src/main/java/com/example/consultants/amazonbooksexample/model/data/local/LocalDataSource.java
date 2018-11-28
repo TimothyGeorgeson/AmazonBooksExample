@@ -76,7 +76,7 @@ public class LocalDataSource {
         SharedPreferences sharedPreferences = context.getSharedPreferences(MY_SHARED_PREF, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
-        editor.putString(CACHE_TIME, time);
+        editor.putString(CACHE_TIME, time).apply();
     }
 
     private String getCurrentTime() {

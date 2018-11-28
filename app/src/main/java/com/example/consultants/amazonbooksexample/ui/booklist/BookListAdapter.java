@@ -18,16 +18,21 @@ import java.util.List;
 public class BookListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     List<Book> bookList;
-    Context context;
 
-    public BookListAdapter(List<Book> bookList, Context context) {
+    public BookListAdapter(List<Book> bookList) {
         this.bookList = bookList;
-        this.context = context;
+    }
+
+    public void addAll(List<Book> books) {
+        this.bookList.clear();
+        this.bookList.addAll(books);
+        notifyDataSetChanged();
     }
 
     @Override
     public int getItemViewType(int position) {
-        return position % 2 * 2;
+        if(bookList.get(position).getTitle().contains("Harry Potter")) return 0;
+        else return 1;
     }
 
     @NonNull
@@ -36,9 +41,9 @@ public class BookListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_book_list,
                 viewGroup, false);
         if (viewType == 0) {
-            return new BookImageViewHolder(view);
-        } else {//viewType == 2
             return new BookViewHolder(view);
+        } else {//viewType == 1
+            return new BookImageViewHolder(view);
         }
     }
 
@@ -48,19 +53,19 @@ public class BookListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         switch (viewHolder.getItemViewType()) {
             case 0:
-                BookImageViewHolder bookImageViewHolder = (BookImageViewHolder) viewHolder;
-                Glide.with(context)
+                BookViewHolder bookViewHolder = (BookViewHolder) viewHolder;
+                bookViewHolder.tvTitle.setText(book.getTitle());
+                Glide.with(viewHolder.itemView.getContext())
                         .load(book.getImageURL())
-                        .into(bookImageViewHolder.ivBook);
+                        .into(bookViewHolder.ivBook);
 
                 break;
 
-            case 2:
-                BookViewHolder bookViewHolder = (BookViewHolder) viewHolder;
-                bookViewHolder.tvTitle.setText(book.getTitle());
-                Glide.with(context)
+            case 1:
+                BookImageViewHolder bookImageViewHolder = (BookImageViewHolder) viewHolder;
+                Glide.with(viewHolder.itemView.getContext())
                         .load(book.getImageURL())
-                        .into(bookViewHolder.ivBook);
+                        .into(bookImageViewHolder.ivBook);
                 break;
         }
     }

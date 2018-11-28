@@ -11,11 +11,13 @@ import android.support.v7.widget.RecyclerView;
 import com.example.consultants.amazonbooksexample.R;
 import com.example.consultants.amazonbooksexample.model.Book;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class BookListActivity extends AppCompatActivity {
+public class BookListActivity extends AppCompatActivity implements Observer<List<Book>> {
 
     RecyclerView rvBookList;
+    private BookListAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,16 +28,15 @@ public class BookListActivity extends AppCompatActivity {
 
         BookListViewModel viewModel = ViewModelProviders.of(this).get(BookListViewModel.class);
 
-        viewModel.getBooks().observe(this, new Observer<List<Book>>() {
-            @Override
-            public void onChanged(@Nullable List<Book> books) {
+        viewModel.getBooks().observe(this, this);
 
-                BookListAdapter adapter = new BookListAdapter(books, getApplicationContext());
-                rvBookList.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-                rvBookList.setAdapter(adapter);
-
-            }
-        });
+        adapter = new BookListAdapter(new ArrayList<Book>());
+        rvBookList.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+        rvBookList.setAdapter(adapter);
     }
 
+    @Override
+    public void onChanged(@Nullable List<Book> bookList) {
+        adapter.addAll(bookList);
+    }
 }
