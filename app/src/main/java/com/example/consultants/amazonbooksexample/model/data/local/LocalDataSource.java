@@ -1,9 +1,9 @@
 package com.example.consultants.amazonbooksexample.model.data.local;
 
+import android.annotation.SuppressLint;
 import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.widget.LinearLayout;
 
 import com.example.consultants.amazonbooksexample.model.Book;
 import com.example.consultants.amazonbooksexample.model.data.BookRepository;
@@ -11,7 +11,6 @@ import com.example.consultants.amazonbooksexample.model.data.local.room.BookDao;
 import com.example.consultants.amazonbooksexample.model.data.local.room.BookDatabase;
 
 import java.util.List;
-import java.util.Observable;
 
 import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -21,8 +20,8 @@ import io.reactivex.schedulers.Schedulers;
 
 public class LocalDataSource {
     public static final String MY_SHARED_PREF = "mySharedPref";
-    public static final String CACHE_TIME = "bookCache";
-    public static final String CACHE_DEF = "default";
+    public static final String CACHE_TIME = "cacheTime";
+    public static final long TIME_LIMIT = 20000;
 
     Context context;
     BookDao bookDao;
@@ -50,6 +49,7 @@ public class LocalDataSource {
                 .subscribe();
     }
 
+    @SuppressLint("CheckResult")
     public void getBooks(final Callback callback) {
         bookDao.getBooks()
                 .observeOn(AndroidSchedulers.mainThread())
@@ -63,24 +63,25 @@ public class LocalDataSource {
     }
 
     public void isCacheDirty(final BookRepository.CheckCacheCallback cacheCallback) {
-        String cacheTime;
+        Long lastTime = context.getSharedPreferences(MY_SHARED_PREF, Context.MODE_PRIVATE)
+                .getLong(CACHE_TIME, 0);
 
-        cacheTime = context.getSharedPreferences(MY_SHARED_PREF, Context.MODE_PRIVATE)
-                .getString(CACHE_TIME, CACHE_DEF);
+        long currentTime = System.currentTimeMillis();
+        long timeDiff = currentTime - lastTime;
 
-        if (cacheTime.equals("latest")) cacheCallback.cacheDirtyResults(false);
-        else cacheCallback.cacheDirtyResults(true);
+        if(timeDiff > TIME_LIMIT) cacheCallback.cacheDirtyResults(true);
+        else cacheCallback.cacheDirtyResults(false);
     }
 
-    public void updateCacheTime(String time) {
+    public void updateCacheTime(Long time) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(MY_SHARED_PREF, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
-        editor.putString(CACHE_TIME, time).apply();
+        editor.putLong(CACHE_TIME, time).apply();
     }
 
-    private String getCurrentTime() {
-        return "latest";
+    private Long getCurrentTime() {
+        return System.currentTimeMillis();
     }
 
     public interface Callback {
