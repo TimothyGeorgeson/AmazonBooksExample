@@ -37,11 +37,9 @@ public class BookRepository {
                         public void onSuccess(List<Book> bookList) {
                             Log.d(TAG, "onSuccess: ");
                             listLiveData.setValue(bookList);
-                            //save books here... commented out, I was getting the error
-                            //UNIQUE constraint failed: Book.title
-                            //There was only title and image in Book, so I don't know what to use as unique primary key
 
-                            //localDataSource.saveBooks(bookList);
+                            //save books to local database
+                            localDataSource.saveBooks(bookList);
                         }
 
                         @Override

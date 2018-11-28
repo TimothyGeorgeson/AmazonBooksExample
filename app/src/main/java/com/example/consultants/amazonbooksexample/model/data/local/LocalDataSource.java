@@ -30,7 +30,8 @@ public class LocalDataSource {
 
     public LocalDataSource(Context context) {
         this.context = context;
-        bookDatabase = Room.databaseBuilder(context, BookDatabase.class, "BookDatabase").build();
+        bookDatabase = Room.databaseBuilder(context, BookDatabase.class, "BookDatabase")
+                .fallbackToDestructiveMigration().build();
         bookDao = bookDatabase.bookDao();
     }
 
